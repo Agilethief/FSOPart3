@@ -8,34 +8,7 @@ const accessLogStream = fs.createWriteStream(
   path.join("./", "access.log"),
   { flags: "a" }
 );
-
-// Mongoose setup
-const mongoose = require("mongoose");
-
-// Establish the note schema and model
-const contactSchema = new mongoose.Schema({
-  name: String,
-  number: String, // We use a string here so we can format numbers as XXX-XXX-XXXX
-});
-contactSchema.set("toJSON", {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString();
-    delete returnedObject._id;
-    delete returnedObject.__v;
-  },
-});
-const contactModel = mongoose.model(
-  "Contact",
-  contactSchema
-);
-const password = process.argv[2];
-//console.log("password:", password);
-
-const url = `mongodb+srv://tbermansedermongodb:${password}@cluster0.cq9y0fn.mongodb.net/contactApp?retryWrites=true&w=majority`;
-
-mongoose.set("strictQuery", false);
-mongoose.connect(url);
-// End mongoose setup
+const contactModel = require("./models/contactsModel");
 
 // https://github.com/expressjs/morgan
 morgan.token("body", (request, response) => {
