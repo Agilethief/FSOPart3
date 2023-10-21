@@ -8,6 +8,7 @@ const accessLogStream = fs.createWriteStream(
   path.join("./", "access.log"),
   { flags: "a" }
 );
+const mongoose = require("mongoose");
 
 // https://github.com/expressjs/morgan
 morgan.token("body", (request, response) => {
