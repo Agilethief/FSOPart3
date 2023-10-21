@@ -18,9 +18,9 @@ morgan.token("body", (request, response) => {
   return "";
 });
 
+app.use(express.static("dist"));
 app.use(express.json());
 app.use(morgan(":method :url :response-time ms :body")); //, { stream: accessLogStream }));
-const PORT = 3001;
 
 let contacts = [
   {
@@ -158,5 +158,7 @@ const unkownEndpoint = (request, response) => {
 };
 app.use(unkownEndpoint);
 
-app.listen(PORT);
-console.log(`Server running on port ${PORT}`);
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

@@ -21,3 +21,18 @@ content-type: application/json
 ###
 DELETE http://localhost:3001/api/contacts/2 HTTP/1.1
 content-type: application/json
+
+
+// To Fly.io
+//https://white-mountain-6577.fly.dev/api/contacts/1
+###
+
+POST https://white-mountain-6577.fly.dev/api/contacts HTTP/1.1
+content-type: application/json
+
+{
+
+    "name": "Sample name",
+    "number": "999-123456"
+  
+}
