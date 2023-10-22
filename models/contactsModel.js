@@ -19,7 +19,11 @@ mongoose
 
 // Establish the note schema and model
 const contactSchema = new mongoose.Schema({
-  name: String,
+  name: {
+    type: String,
+    minLength: 3,
+    required: true,
+  },
   number: String, // We use a string here so we can format numbers as XXX-XXX-XXXX
 });
 contactSchema.set("toJSON", {

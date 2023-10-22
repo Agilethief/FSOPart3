@@ -1,7 +1,7 @@
 GET http://localhost:3001/api/contacts/
 
 ###
-GET http://localhost:3001/api/contactsBAD/20
+GET http://localhost:3001/api/contacts/6533b6b4fee0f594b6be0706
 
 
 ###
@@ -12,16 +12,16 @@ POST http://localhost:3001/api/contacts/ HTTP/1.1
 content-type: application/json
 
 {
-    "name": "Sample name",
+    "name": "S",
     "number": "999-123456"
 }
 
 ###
-PUT http://localhost:3001/api/contacts/65345a78ce708ecb8f936da1 HTTP/1.1
+PUT http://localhost:3001/api/contacts/653487b07cb7f01c09d768fa HTTP/1.1
 content-type: application/json
 
 {
-    "name": "PUT Name changed",
+    "name": "PU",
     "number": "111-123456"
 }
 
