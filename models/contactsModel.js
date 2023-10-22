@@ -1,10 +1,6 @@
 // Mongoose setup
 const mongoose = require("mongoose");
 
-const password = process.argv[2];
-//console.log("password:", password);
-
-//  `mongodb+srv://tbermansedermongodb:${password}@cluster0.cq9y0fn.mongodb.net/contactApp?retryWrites=true&w=majority`;
 const url = process.env.MONGODB_URI;
 
 mongoose.set("strictQuery", false);

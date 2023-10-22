@@ -1,3 +1,4 @@
+require("dotenv").config();
 const http = require("http");
 const express = require("express");
 const app = express();
@@ -8,7 +9,7 @@ const accessLogStream = fs.createWriteStream(
   path.join("./", "access.log"),
   { flags: "a" }
 );
-const contactModel = require("./models/contactsModel");
+const Contact = require("./models/contactsModel");
 
 // https://github.com/expressjs/morgan
 morgan.token("body", (request, response) => {
@@ -23,45 +24,6 @@ app.use(express.static("dist"));
 app.use(express.json());
 app.use(morgan(":method :url :response-time ms :body")); //, { stream: accessLogStream }));
 
-let contacts = [
-  {
-    id: 1,
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: 2,
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: 3,
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: 4,
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-];
-
-const generateId = () => {
-  // Generate based on a large random number
-  newID = Math.random() * 1000000000; // Make a real big number
-  newID = Math.floor(newID); // Round down to nearest number
-  return newID;
-
-  // Generate based on length of array
-  /*
-  const maxId =
-    contacts.length > 0
-      ? Math.max(...contacts.map((n) => n.id))
-      : 0;
-  return maxId + 1;
-  */
-};
-
 // Routes
 
 app.get("/", (request, response) => {
@@ -69,40 +31,54 @@ app.get("/", (request, response) => {
 });
 
 app.get("/api/contacts", (request, response) => {
-  contactModel.find({}).then((contacts) => {
+  Contact.find({}).then((contacts) => {
     response.json(contacts);
   });
 });
 
-app.get("/api/contacts/:id", (request, response) => {
-  const id = Number(request.params.id);
-  const contact = contacts.find(
-    (contact) => contact.id === id
-  );
-  if (contact) {
-    response.json(contact);
-  } else {
-    response.status(404).end();
-  }
+app.get("/api/contacts/:id", (request, response, next) => {
+  const id = request.params.id;
+
+  Contact.findById(id)
+    .then((contact) => {
+      if (contact) {
+        response.json(contact);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch((error) => next(error));
 });
 
-app.delete("/api/contacts/:id", (request, response) => {
-  const id = Number(request.params.id);
+app.delete(
+  "/api/contacts/:id",
+  (request, response, next) => {
+    const id = request.params.id;
 
-  // Find the contact with the id
-  const contact = contacts.find(
-    (contact) => contact.id === id
-  );
-
-  if (contact) {
-    contacts = contacts.filter(
-      (contact) => contact.id !== id
-    );
-
-    response.status(204).end();
-  } else {
-    response.status(404).end();
+    Contact.findByIdAndDelete(id)
+      .then((result) => {
+        response.status(204).end();
+      })
+      .catch((error) => next(error));
   }
+);
+
+app.put("/api/contacts/:id", (request, response, next) => {
+  console.log("PUT request received");
+  const body = request.body;
+
+  const contact = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Contact.findByIdAndUpdate(request.params.id, contact, {
+    new: true,
+  })
+    .then((updatedContact) => {
+      response.json(updatedContact);
+    })
+    .catch((error) => next(error));
 });
 
 // Adding contacts
@@ -115,6 +91,7 @@ app.post("/api/contacts", (request, response) => {
     });
   }
 
+  /*
   // Make sure the name is unique.
   const nameExists = contacts.find((contact) => {
     return contact.name === body.name;
@@ -134,16 +111,16 @@ app.post("/api/contacts", (request, response) => {
       error: "Number must be unique",
     });
   }
+*/
 
-  const contact = {
+  const newContact = new Contact({
     name: body.name,
     number: body.number,
-    id: generateId(),
-  };
+  });
 
-  contacts = contacts.concat(contact);
-
-  response.json(contact);
+  newContact.save().then((savedContact) => {
+    response.json(savedContact);
+  });
 });
 
 app.get("/info", (request, response) => {
@@ -161,7 +138,20 @@ const unkownEndpoint = (request, response) => {
 };
 app.use(unkownEndpoint);
 
-const PORT = process.env.PORT || 3001;
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === "CastError") {
+    return response
+      .status(400)
+      .send({ error: "malformatted id" });
+  }
+
+  next(error);
+};
+app.use(errorHandler);
+
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

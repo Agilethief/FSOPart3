@@ -12,14 +12,21 @@ POST http://localhost:3001/api/contacts/ HTTP/1.1
 content-type: application/json
 
 {
-
     "name": "Sample name",
     "number": "999-123456"
-  
 }
 
 ###
-DELETE http://localhost:3001/api/contacts/2 HTTP/1.1
+PUT http://localhost:3001/api/contacts/65345a78ce708ecb8f936da1 HTTP/1.1
+content-type: application/json
+
+{
+    "name": "PUT Name changed",
+    "number": "111-123456"
+}
+
+###
+DELETE http://localhost:3001/api/contacts/65345a78ce708ecb8f936da1 HTTP/1.1
 content-type: application/json
 
 
