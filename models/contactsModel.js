@@ -6,7 +6,7 @@ const url = process.env.MONGODB_URI;
 mongoose.set("strictQuery", false);
 mongoose
   .connect(url)
-  .then((result) => {
+  .then(() => {
     console.log("connected to MongoDB");
   })
   .catch((error) => {
@@ -24,7 +24,18 @@ const contactSchema = new mongoose.Schema({
     minLength: 3,
     required: true,
   },
-  number: String, // We use a string here so we can format numbers as XXX-XXX-XXXX
+  number: {
+    type: String, // We use a string here so we can format numbers as XXX-XXX-XXXX
+    minLength: 8,
+    required: true,
+    validate: {
+      validator: function (v) {
+        return /\d{2,4}-\d{3,4}-\d{3,4}/.test(v);
+      },
+      message: (props) =>
+        `${props.value} is not a valid phone number!, you must use the format {2,4}-{3,4}-{3,4}`,
+    },
+  },
 });
 contactSchema.set("toJSON", {
   transform: (document, returnedObject) => {
@@ -33,9 +44,5 @@ contactSchema.set("toJSON", {
     delete returnedObject.__v;
   },
 });
-const contactModel = mongoose.model(
-  "Contact",
-  contactSchema
-);
 
 module.exports = mongoose.model("Contact", contactSchema);

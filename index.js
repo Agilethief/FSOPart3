@@ -1,18 +1,11 @@
 require("dotenv").config();
-const http = require("http");
 const express = require("express");
 const app = express();
 const morgan = require("morgan");
-const fs = require("fs");
-const path = require("path");
-const accessLogStream = fs.createWriteStream(
-  path.join("./", "access.log"),
-  { flags: "a" }
-);
 const Contact = require("./models/contactsModel");
 
 // https://github.com/expressjs/morgan
-morgan.token("body", (request, response) => {
+morgan.token("body", (request) => {
   //return request.body;
   if (request.method === "POST") {
     return JSON.stringify(request.body);
@@ -22,12 +15,12 @@ morgan.token("body", (request, response) => {
 
 app.use(express.static("dist"));
 app.use(express.json());
-app.use(morgan(":method :url :response-time ms :body")); //, { stream: accessLogStream }));
+app.use(morgan(":method :url :response-time ms :body"));
 
 // Routes
 
 app.get("/", (request, response) => {
-  response.json(contacts);
+  response.json(Contact);
 });
 
 app.get("/api/contacts", (request, response) => {
@@ -56,7 +49,7 @@ app.delete(
     const id = request.params.id;
 
     Contact.findByIdAndDelete(id)
-      .then((result) => {
+      .then(() => {
         response.status(204).end();
       })
       .catch((error) => next(error));
@@ -66,13 +59,6 @@ app.delete(
 app.put("/api/contacts/:id", (request, response, next) => {
   console.log("PUT request received");
   const { name, number } = request.body;
-
-  /*
-  const contact = {
-    name: body.name,
-    number: body.number,
-  };
-  */
 
   Contact.findByIdAndUpdate(
     request.params.id,
